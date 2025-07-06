@@ -1,0 +1,34 @@
+{% extends 'pharmacie_app/base.html' %}
+{% block title %}Gestion des Pharmaciens{% endblock %}
+{% block content %}
+<h2 class="mb-4">Gestion des pharmaciens</h2>
+<a href="{% url 'admin_ajouter_pharmacien' %}" class="btn btn-success mb-3">Ajouter un pharmacien</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Date d'ajout</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pharmacien in pharmaciens %}
+        <tr>
+            <td>{{ pharmacien.nom }}</td>
+            <td>{{ pharmacien.email }}</td>
+            <td>{{ pharmacien.telephone }}</td>
+            <td>{{ pharmacien.date_ajout|date:'d/m/Y' }}</td>
+            <td>
+                <a href="{% url 'detail_pharmacien' pharmacien.pk %}" class="btn btn-info btn-sm">Fiche</a>
+                <a href="{% url 'admin_modifier_pharmacien' pharmacien.pk %}" class="btn btn-warning btn-sm">Modifier</a>
+                <a href="{% url 'admin_supprimer_pharmacien' pharmacien.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Aucun pharmacien enregistré.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
