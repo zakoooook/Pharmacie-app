@@ -1,3 +1,4 @@
+
 """
 Django settings for pharmacie project.
 
@@ -85,20 +86,16 @@ WSGI_APPLICATION = "pharmacie.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-import os
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('PGDATABASE'),
-        'USER': os.environ.get('PGUSER'),
-        'PASSWORD': os.environ.get('PGPASSWORD'),
-        'HOST': os.environ.get('PGHOST'),
-        'PORT': os.environ.get('PGPORT'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "<railway>",
+        "USER": "<postgres>",
+        "PASSWORD": "<wUtBaDDMPcoqQVKqKtrnQBeXtedQAArI>",
+        "HOST": "<postgres.railway.internal>",
+        "PORT": "<5432>",
     }
 }
-
 }
 
 
