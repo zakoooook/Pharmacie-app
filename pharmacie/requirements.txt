@@ -1,6 +1,5 @@
 Django>=4.2
 gunicorn
 cloudinary
-cloudinary-storage
+django-cloudinary-storage
 psycopg2-binary
-pillow
