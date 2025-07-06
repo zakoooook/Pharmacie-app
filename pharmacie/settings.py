@@ -88,11 +88,11 @@ WSGI_APPLICATION = "pharmacie.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "<railway>",
-        "USER": "<postgres>",
-        "PASSWORD": "<wUtBaDDMPcoqQVKqKtrnQBeXtedQAArI>",
-        "HOST": "<postgres.railway.internal>",
-        "PORT": "<5432>",
+        "NAME": "railway",
+        "USER": "postgres",
+        "PASSWORD": "wUtBaDDMPcoqQVKqKtrnQBeXtedQAArI",
+        "HOST": "postgres.railway.internal",
+        "PORT": "5432",
     }
 }
 
