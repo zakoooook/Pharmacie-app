@@ -94,7 +94,7 @@ DATABASES = {
         "PASSWORD": "wUtBaDDMPcoqQVKqKtrnQBeXtedQAArI",
         "HOST": "postgres.railway.internal",
         "PORT": "5432",
-    }
+    
 }
 
 
