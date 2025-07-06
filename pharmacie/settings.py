@@ -138,3 +138,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+DEBUG = False
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'pharmacie-app-production.up.railway.app']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://pharmacie-app-production.up.railway.app'
+]
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
