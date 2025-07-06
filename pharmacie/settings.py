@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-5w&957#qlp(&#wch8igjtr=sth3^suzvja*9iosabqfglc1u=8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -134,17 +134,7 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
+ALLOWED_HOSTS = ['pharmacie-app-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://pharmacie-app-production.up.railway.app']
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-DEBUG = False
-
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'pharmacie-app-production.up.railway.app']
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://pharmacie-app-production.up.railway.app'
-]
-
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
