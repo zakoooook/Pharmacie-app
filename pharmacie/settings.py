@@ -1,4 +1,6 @@
 
+
+
 """
 Django settings for pharmacie project.
 
@@ -85,9 +87,13 @@ WSGI_APPLICATION = "pharmacie.wsgi.application"
 
 
 # Database
+import dj_database_url
+import os
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 DATABASES = {
-   "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))
+  "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL")
+    )
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "railway",
         "USER": "postgres",
