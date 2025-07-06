@@ -1,0 +1,75 @@
+{% extends 'pharmacie_app/base.html' %}
+{% block title %}Noter le Pharmacien{% endblock %}
+{% block content %}
+<h2>Noter {{ pharmacien.nom }}</h2>
+<form method="post" class="mb-4">
+    <!-- PHOTO DU PHARMACIEN -->
+<img src="{{ pharmacien.image.url }}" alt="Photo de {{ pharmacien.nom }}"
+     class="rounded shadow mb-4" style="width: 220px; height: auto; object-fit: cover;">
+    {% csrf_token %}
+    
+    <div class="mb-3">
+        <label for="auteur" class="form-label">Votre nom (facultatif)</label>
+        <input type="text" class="form-control" id="auteur" name="auteur">
+    </div>
+
+    <!-- Étoiles de notation -->
+    <div class="mb-3">
+        <label class="form-label">Note</label>
+        <div id="star-rating" class="mb-2">
+            {% for i in "12345" %}
+                <input type="radio" class="btn-check" name="note" id="star{{ i }}" value="{{ i }}" autocomplete="off" required>
+                <label class="btn btn-outline-warning" for="star{{ i }}">
+                    &#9733;
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Questions personnalisées -->
+    <div class="mb-3">
+        <label class="form-label">Le service fourni vous a-t-il satisfait ?</label><br>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="service_satisfait" value="oui" required>
+            <label class="form-check-label">Oui</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="service_satisfait" value="non">
+            <label class="form-check-label">Non</label>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Le pharmacien était-il à l'écoute de vos besoins ?</label><br>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="ecoute" value="oui" required>
+            <label class="form-check-label">Oui</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="ecoute" value="non">
+            <label class="form-check-label">Non</label>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Souhaitez-vous revenir dans cette pharmacie ?</label><br>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="revenir" value="oui" required>
+            <label class="form-check-label">Oui</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="revenir" value="non">
+            <label class="form-check-label">Non</label>
+        </div>
+    </div>
+
+    <!-- Commentaire -->
+    <div class="mb-3">
+        <label for="commentaire" class="form-label">Commentaire <span class="text-muted">(facultatif)</span></label>
+        <textarea class="form-control" id="commentaire" name="commentaire" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Envoyer</button>
+    <a href="{% url 'detail_pharmacien' pharmacien.pk %}" class="btn btn-secondary">Retour</a>
+</form>
+{% endblock %}

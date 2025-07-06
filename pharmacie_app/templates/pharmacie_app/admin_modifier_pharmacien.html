@@ -1,0 +1,39 @@
+{% extends 'pharmacie_app/base.html' %}
+{% block title %}Modifier un pharmacien{% endblock %}
+{% block content %}
+<h2>Modifier un pharmacien</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="nom" class="form-label">Nom</label>
+        <input type="text" class="form-control" id="nom" name="nom" value="{{ pharmacien.nom }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="adresse" class="form-label">Adresse</label>
+        <input type="text" class="form-control" id="adresse" name="adresse" value="{{ pharmacien.adresse }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="telephone" class="form-label">Téléphone</label>
+        <input type="text" class="form-control" id="telephone" name="telephone" value="{{ pharmacien.telephone }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ pharmacien.email }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="image" class="form-label">Photo (facultatif)</label>
+        {% if pharmacien.image %}
+        <div class="mb-2">
+            <img src="{{ pharmacien.image.url }}" alt="Photo actuelle" class="img-thumbnail" width="120">
+        </div>
+        {% endif %}
+        <input type="file" class="form-control" id="image" name="image" accept="image/*">
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Description (facultatif)</label>
+        <textarea class="form-control" id="description" name="description" rows="3">{{ pharmacien.description }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <a href="{% url 'admin_pharmaciens' %}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}
