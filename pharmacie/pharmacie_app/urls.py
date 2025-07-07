@@ -14,3 +14,4 @@ urlpatterns = [
     path('gestion/pharmaciens/<int:pk>/supprimer/', views.admin_supprimer_pharmacien, name='admin_supprimer_pharmacien'),
     path('gestion/avis/', views.admin_avis, name='admin_avis'),
 ]
+path('pharmaciens/<int:pk>/noter-avance/', views.noter_pharmacien_avance, name='noter_pharmacien_avance'),
