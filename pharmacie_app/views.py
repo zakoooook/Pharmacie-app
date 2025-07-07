@@ -1,44 +1,59 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, logout
 from django.http import JsonResponse
-from .models import Pharmacien, Avis
-from .forms import UsernameAuthenticationForm
 from django.contrib import messages
-
+from django.db import transaction
+from django.db.models import Avg
+from django.utils import timezone
+from datetime import timedelta
+from .models import Pharmacien, Avis, Notation
+from .forms import UsernameAuthenticationForm
 
 # Visiteurs : liste des pharmaciens
-
 def liste_pharmaciens(request):
     pharmaciens = Pharmacien.objects.all()
     return render(request, 'pharmacie_app/liste_pharmaciens.html', {'pharmaciens': pharmaciens})
 
 # Visiteurs : détail pharmacien + avis
-
 def detail_pharmacien(request, pk):
     pharmacien = get_object_or_404(Pharmacien, pk=pk)
     avis = pharmacien.avis_set.order_by('-date_ajout')
     return render(request, 'pharmacie_app/detail_pharmacien.html', {'pharmacien': pharmacien, 'avis': avis})
 
 # Visiteurs : noter/commenter un pharmacien
-
+@transaction.atomic
 def noter_pharmacien(request, pk):
     pharmacien = get_object_or_404(Pharmacien, pk=pk)
     if request.method == 'POST':
-        auteur = request.POST.get('auteur', 'Anonyme')
-        note = int(request.POST.get('note', 0))
-        commentaire = request.POST.get('commentaire', '')
+        auteur = request.POST.get('auteur', 'Anonyme').strip()
+        note_str = request.POST.get('note', '0').strip()
+        commentaire = request.POST.get('commentaire', '').strip()
+
+        try:
+            note = int(note_str)
+        except ValueError:
+            note = 0
+
+        # Debug print (à retirer en prod)
+        print(f"POST reçu : auteur={auteur}, note={note}, commentaire={commentaire}")
+
         if 1 <= note <= 5 and commentaire:
-            Avis.objects.create(pharmacien=pharmacien, auteur=auteur, note=note, commentaire=commentaire)
+            avis = Avis.objects.create(
+                pharmacien=pharmacien,
+                auteur=auteur or 'Anonyme',
+                note=note,
+                commentaire=commentaire
+            )
+            print(f"Avis créé avec id {avis.id}")
             messages.success(request, "Merci pour votre avis !")
+            return redirect('liste_pharmaciens')
         else:
-            messages.error(request, "Veuillez fournir une note et un commentaire.")
-        return redirect('liste_pharmaciens')
+            messages.error(request, "Veuillez fournir une note valide (1-5) et un commentaire.")
+    # GET ou erreurs -> affichage du formulaire
     return render(request, 'pharmacie_app/noter_pharmacien.html', {'pharmacien': pharmacien})
 
 # Vérification admin
-
 def is_admin(user):
     return user.is_staff
 
@@ -57,7 +72,6 @@ def logout_view(request):
     return redirect('login')
 
 # Admin : liste et gestion pharmaciens
-
 @login_required
 @user_passes_test(is_admin)
 def admin_pharmaciens(request):
@@ -68,15 +82,26 @@ def admin_pharmaciens(request):
 @user_passes_test(is_admin)
 def admin_ajouter_pharmacien(request):
     if request.method == 'POST':
-        nom = request.POST.get('nom')
-        adresse = request.POST.get('adresse')
-        telephone = request.POST.get('telephone')
-        email = request.POST.get('email')
-        description = request.POST.get('description')
+        nom = request.POST.get('nom', '').strip()
+        adresse = request.POST.get('adresse', '').strip()
+        telephone = request.POST.get('telephone', '').strip()
+        email = request.POST.get('email', '').strip()
+        description = request.POST.get('description', '').strip()
         image = request.FILES.get('image')
-        Pharmacien.objects.create(nom=nom, adresse=adresse, telephone=telephone, email=email, description=description, image=image)
-        messages.success(request, "Pharmacien ajouté !")
-        return redirect('admin_pharmaciens')
+
+        if nom and adresse:
+            Pharmacien.objects.create(
+                nom=nom,
+                adresse=adresse,
+                telephone=telephone,
+                email=email,
+                description=description,
+                image=image
+            )
+            messages.success(request, "Pharmacien ajouté !")
+            return redirect('admin_pharmaciens')
+        else:
+            messages.error(request, "Nom et adresse sont obligatoires.")
     return render(request, 'pharmacie_app/admin_ajouter_pharmacien.html')
 
 @login_required
@@ -84,11 +109,11 @@ def admin_ajouter_pharmacien(request):
 def admin_modifier_pharmacien(request, pk):
     pharmacien = get_object_or_404(Pharmacien, pk=pk)
     if request.method == 'POST':
-        pharmacien.nom = request.POST.get('nom')
-        pharmacien.adresse = request.POST.get('adresse')
-        pharmacien.telephone = request.POST.get('telephone')
-        pharmacien.email = request.POST.get('email')
-        pharmacien.description = request.POST.get('description')
+        pharmacien.nom = request.POST.get('nom', pharmacien.nom).strip()
+        pharmacien.adresse = request.POST.get('adresse', pharmacien.adresse).strip()
+        pharmacien.telephone = request.POST.get('telephone', pharmacien.telephone).strip()
+        pharmacien.email = request.POST.get('email', pharmacien.email).strip()
+        pharmacien.description = request.POST.get('description', pharmacien.description).strip()
         if request.FILES.get('image'):
             pharmacien.image = request.FILES.get('image')
         pharmacien.save()
@@ -114,10 +139,6 @@ def admin_avis(request):
     return render(request, 'pharmacie_app/admin_avis.html', {'avis': avis})
 
 # Dashboard admin avec statistiques (pour Chart.js)
-from django.db.models import Avg, Count
-from django.utils import timezone
-from datetime import timedelta
-
 @login_required
 @user_passes_test(is_admin)
 def dashboard_admin(request):
@@ -126,12 +147,9 @@ def dashboard_admin(request):
     total_avis = avis.count()
     note_moyenne_globale = avis.aggregate(moy=Avg('note'))['moy']
 
-    # Graphique barres : nombre de notes par pharmacien
     noms = [p.nom for p in pharmaciens]
     nb_avis = [p.avis_set.count() for p in pharmaciens]
 
-    # Graphique courbe : évolution des notes dans le temps (par jour/semaine)
-    # On prend les 30 derniers jours
     dates = []
     moyennes_par_date = []
     for i in range(29, -1, -1):
@@ -140,9 +158,9 @@ def dashboard_admin(request):
         if avis_jour.exists():
             moyenne = round(avis_jour.aggregate(moy=Avg('note'))['moy'], 2)
         else:
-            moyenne = None
+            moyenne = 0
         dates.append(jour.strftime('%d/%m'))
-        moyennes_par_date.append(moyenne or 0)
+        moyennes_par_date.append(moyenne)
 
     data = {
         'noms': noms,
@@ -156,23 +174,27 @@ def dashboard_admin(request):
         'total_avis': total_avis,
         'note_moyenne_globale': round(note_moyenne_globale, 2) if note_moyenne_globale else '-',
     })
-from .models import Notation
-from django.utils import timezone
 
+# Formulaire avancé pour noter pharmacien
+@transaction.atomic
 def noter_pharmacien_avance(request, pk):
     pharmacien = get_object_or_404(Pharmacien, pk=pk)
     if request.method == 'POST':
-        auteur = request.POST.get('auteur', 'Anonyme')
-        note = int(request.POST.get('note', 0))
-        commentaire = request.POST.get('commentaire', '')
+        auteur = request.POST.get('auteur', 'Anonyme').strip()
+        note_str = request.POST.get('note', '0').strip()
         service_satisfait = request.POST.get('service_satisfait') == 'on'
         ecoute = request.POST.get('ecoute') == 'on'
         revenir = request.POST.get('revenir') == 'on'
 
+        try:
+            note = int(note_str)
+        except ValueError:
+            note = 0
+
         if 1 <= note <= 5:
             Notation.objects.create(
                 pharmacien=pharmacien,
-                auteur=auteur,
+                auteur=auteur or 'Anonyme',
                 note=note,
                 service_satisfait=service_satisfait,
                 ecoute=ecoute,
@@ -180,8 +202,7 @@ def noter_pharmacien_avance(request, pk):
                 date=timezone.now()
             )
             messages.success(request, "Merci pour votre retour !")
+            return redirect('liste_pharmaciens')
         else:
             messages.error(request, "Note invalide.")
-        return redirect('liste_pharmaciens')
-
     return render(request, 'pharmacie_app/noter_avance.html', {'pharmacien': pharmacien})
