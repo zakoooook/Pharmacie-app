@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, logout, authenticate
@@ -156,3 +157,32 @@ def dashboard_admin(request):
         'total_avis': total_avis,
         'note_moyenne_globale': round(note_moyenne_globale, 2) if note_moyenne_globale else '-',
     })
+from .models import Notation
+from django.utils import timezone
+
+def noter_pharmacien_avance(request, pk):
+    pharmacien = get_object_or_404(Pharmacien, pk=pk)
+    if request.method == 'POST':
+        auteur = request.POST.get('auteur', 'Anonyme')
+        note = int(request.POST.get('note', 0))
+        commentaire = request.POST.get('commentaire', '')
+        service_satisfait = request.POST.get('service_satisfait') == 'on'
+        ecoute = request.POST.get('ecoute') == 'on'
+        revenir = request.POST.get('revenir') == 'on'
+
+        if 1 <= note <= 5:
+            Notation.objects.create(
+                pharmacien=pharmacien,
+                auteur=auteur,
+                note=note,
+                service_satisfait=service_satisfait,
+                ecoute=ecoute,
+                revenir=revenir,
+                date=timezone.now()
+            )
+            messages.success(request, "Merci pour votre retour !")
+        else:
+            messages.error(request, "Note invalide.")
+        return redirect('liste_pharmaciens')
+
+    return render(request, 'pharmacie_app/noter_avance.html', {'pharmacien': pharmacien})
