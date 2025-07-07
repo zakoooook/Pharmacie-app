@@ -1,6 +1,9 @@
 #!/bin/bash
 
-python manage.py migrate
+
+echo "📦 Lancement des migrations"
+python manage.py migrate --noinput
+
 python manage.py collectstatic --noinput
 
 # Supprimer l'ancien superuser admin s'il existe, puis créer un nouveau
