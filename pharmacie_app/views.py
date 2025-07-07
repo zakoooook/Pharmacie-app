@@ -159,10 +159,26 @@ def dashboard_admin(request):
 from .models import Notation
 from django.utils import timezone
 
-def service_satisfait = request.POST.get('service_satisfait') == 'oui'
-ecoute = request.POST.get('ecoute') == 'oui'
-revenir = request.POST.get('revenir') == 'oui'
+def noter_pharmacien_avance(request, pk):
+    pharmacien = get_object_or_404(Pharmacien, pk=pk)
+    if request.method == 'POST':
+        auteur = request.POST.get('auteur', 'Anonyme')
+        note = int(request.POST.get('note', 0))
+        commentaire = request.POST.get('commentaire', '')
+        service_satisfait = request.POST.get('service_satisfait') == 'on'
+        ecoute = request.POST.get('ecoute') == 'on'
+        revenir = request.POST.get('revenir') == 'on'
 
+        if 1 <= note <= 5:
+            Notation.objects.create(
+                pharmacien=pharmacien,
+                auteur=auteur,
+                note=note,
+                service_satisfait=service_satisfait,
+                ecoute=ecoute,
+                revenir=revenir,
+                date=timezone.now()
+            )
             messages.success(request, "Merci pour votre retour !")
         else:
             messages.error(request, "Note invalide.")
