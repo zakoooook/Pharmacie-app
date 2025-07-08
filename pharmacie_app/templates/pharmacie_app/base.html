@@ -1,211 +1,59 @@
 <!DOCTYPE html>
 <html lang="fr">
-    {% load static %}
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Bienvenue à la nouvelle Phamacie de la Cité Cir{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
- 
-
-   <style>
-   .pharma-animated-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* Bulles grisées */
-.bubble {
-  position: absolute;
-  bottom: -200px;
-  width: 100px;
-  height: 100px;
-  background: rgba(180, 180, 180, 0.25); /* gris clair transparent */
-  border-radius: 50%;
-  filter: blur(4px);
-  animation: floatUp 22s linear infinite;
-  left: calc(var(--i) * 9%);
-  animation-delay: calc(var(--i) * -2s);
-  animation-duration: calc(18s + var(--i) * 1s);
-}
-
-@keyframes floatUp {
-  0% {
-    transform: translateY(0) scale(1);
-    opacity: 0.2;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(-130vh) scale(1.3);
-    opacity: 0;
-  }
-}
-
-/* Croix pharmacie */
-.pharma-cross {
-  position: absolute;
-  bottom: -150px;
-  width: 60px;
-  height: 60px;
-  background: rgba(40, 167, 69, 0.4);
-  clip-path: polygon(
-    40% 0%, 60% 0%, 60% 40%, 100% 40%,
-    100% 60%, 60% 60%, 60% 100%, 40% 100%,
-    40% 60%, 0% 60%, 0% 40%, 40% 40%
-  );
-  animation: floatCross 25s linear infinite;
-  left: calc(var(--i) * 12%);
-  filter: blur(1.5px);
-}
-
-@keyframes floatCross {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(-120vh) rotate(180deg);
-    opacity: 0;
-  }
-}
+  <meta charset="UTF-8">
+  <title>{% block title %}Pharmacie{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #F6F9F8;
+    }
+    header {
+      background-color: #2CA58D;
+      padding: 1rem 2rem;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
     .container {
-  max-width: 800px;
-  margin: 3rem auto;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 2rem 3rem;
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  animation: fadeIn 1.2s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-  
-
-
-@keyframes rise {
-  0% { transform: translateY(0) scale(1); }
-  100% { transform: translateY(-120vh) scale(1.5); }
-}
-
-        
-        
-        body { background: #aad184; 
-         font-family: 'Poppins', sans-serif;
-  background-size: cover;
-  background-attachment: fixed;
-  overflow-x: hidden;
-        }
-         .glass-navbar {
-    background: rgba(40, 167, 69, 0.7); /* Vert transparent */
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .navbar-brand {
-    font-size: 1.4rem;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-  }
-
-  .navbar-nav .nav-link {
-    color: #ffffff;
-    font-weight: 500;
-    margin-left: 1rem;
-    transition: all 0.3s ease-in-out;
-    position: relative;
-  }
-
-  .navbar-nav .nav-link:hover {
-    color: #d4f8d4;
-    transform: translateY(-1px);
-  }
-
-  .navbar-nav .nav-link.active {
-    color: #fff;
-    font-weight: 700;
-  }
-
-  .navbar-nav .nav-link.active::after,
-  .navbar-nav .nav-link:hover::after {
-    content: "";
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background-color: #d4f8d4;
-    border-radius: 2px;
-  }
-        .container { max-width: 900px; }
-    </style>
-    {% block extra_head %}{% endblock %}
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    a {
+      color: #2CA58D;
+      text-decoration: none;
+    }
+    button {
+      background-color: #2CA58D;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      margin-bottom: 1.5rem;
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
 </head>
-<div class="pharma-animated-bg">
-  <!-- Bulles grises -->
-  <div class="bubble" style="--i:1;"></div>
-  <div class="bubble" style="--i:3;"></div>
-  <div class="bubble" style="--i:5;"></div>
-  <div class="bubble" style="--i:7;"></div>
-  <div class="bubble" style="--i:9;"></div>
-  <div class="bubble" style="--i:11;"></div>
-
-  <!-- Croix pharmacie -->
-  <div class="pharma-cross" style="--i:2;"></div>
-  <div class="pharma-cross" style="--i:6;"></div>
-</div>
-
 <body>
-<nav class="navbar navbar-expand-lg glass-navbar shadow-sm">
-  <div class="container-fluid px-4">
-    <a class="navbar-brand fw-bold text-white" href="/">
-      💊 Pharmacie Cité Cir
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarContent" aria-controls="navbarContent"
-            aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+  <header>
+    Pharmacie-app
+  </header>
 
-    <div class="collapse navbar-collapse" id="navbarContent">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Accueil</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" href="/dashboard/">Dashboard Admin</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-
-<div class="container">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+  <div class="container">
     {% block content %}{% endblock %}
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-{% block extra_js %}{% endblock %}
+  </div>
+
+  {% block extra_js %}{% endblock %}
 </body>
 </html>
