@@ -1,75 +1,152 @@
 {% extends 'pharmacie_app/base.html' %}
 {% block title %}Noter le Pharmacien{% endblock %}
+
+{% block extra_css %}
+<style>
+  .notation-container {
+    display: flex;
+    gap: 2rem;
+    max-width: 900px;
+    margin: 2rem auto;
+    align-items: flex-start;
+  }
+  .photo-pharmacien {
+    flex: 0 0 220px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .photo-pharmacien img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  .form-container {
+    flex: 1;
+  }
+  /* Étoiles personnalisées */
+  #star-rating input[type="radio"] {
+    display: none;
+  }
+  #star-rating label {
+    font-size: 2.5rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  /* Étoile pleine (remplie) */
+  #star-rating input[type="radio"]:checked ~ label,
+  #star-rating label:hover,
+  #star-rating label:hover ~ label {
+    color: #FFC107; /* Jaune or */
+  }
+  /* Pour remplir les étoiles précédentes quand on survole */
+  #star-rating label:hover,
+  #star-rating label:hover ~ label {
+    color: #FFC107;
+  }
+  /* Message d'erreur */
+  .error-message {
+    color: red;
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+    display: none;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<h2>Noter {{ pharmacien.nom }}</h2>
-<form method="post" class="mb-4">
-    <!-- PHOTO DU PHARMACIEN -->
-<img src="{{ pharmacien.image.url }}" alt="Photo de {{ pharmacien.nom }}"
-     class="rounded shadow mb-4" style="width: 220px; height: auto; object-fit: cover;">
-    {% csrf_token %}
-    
-    <div class="mb-3">
+<div class="notation-container">
+  <div class="photo-pharmacien">
+    <img src="{{ pharmacien.image.url }}" alt="Photo de {{ pharmacien.nom }}">
+  </div>
+
+  <div class="form-container">
+    <h2>Noter {{ pharmacien.nom }}</h2>
+    <form method="post" class="mb-4" id="noteForm" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
         <label for="auteur" class="form-label">Votre nom (facultatif)</label>
-        <input type="text" class="form-control" id="auteur" name="auteur">
-    </div>
+        <input type="text" class="form-control" id="auteur" name="auteur" autocomplete="off">
+      </div>
 
-    <!-- Étoiles de notation -->
-    <div class="mb-3">
-        <label class="form-label">Note</label>
-        <div id="star-rating" class="mb-2">
-            {% for i in "12345" %}
-                <input type="radio" class="btn-check" name="note" id="star{{ i }}" value="{{ i }}" autocomplete="off" required>
-                <label class="btn btn-outline-warning" for="star{{ i }}">
-                    &#9733;
-                </label>
-            {% endfor %}
+      <div class="mb-3">
+        <label class="form-label">Note <span style="color: red;">*</span></label>
+        <div id="star-rating" class="d-flex flex-row-reverse justify-content-start">
+          {% for i in "54321" %}
+            <input type="radio" class="btn-check" name="note" id="star{{ i }}" value="{{ i }}">
+            <label for="star{{ i }}" title="{{ i }} étoiles">&#9733;</label>
+          {% endfor %}
         </div>
-    </div>
+        <div class="error-message" id="error-note">Veuillez noter le nombre d’étoiles.</div>
+      </div>
 
-    <!-- Questions personnalisées -->
-    <div class="mb-3">
+      <div class="mb-3">
         <label class="form-label">Le service fourni vous a-t-il satisfait ?</label><br>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="service_satisfait" value="oui" required>
-            <label class="form-check-label">Oui</label>
+          <input class="form-check-input" type="radio" name="service_satisfait" value="oui" required>
+          <label class="form-check-label">Oui</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="service_satisfait" value="non">
-            <label class="form-check-label">Non</label>
+          <input class="form-check-input" type="radio" name="service_satisfait" value="non">
+          <label class="form-check-label">Non</label>
         </div>
-    </div>
+      </div>
 
-    <div class="mb-3">
+      <div class="mb-3">
         <label class="form-label">Le pharmacien était-il à l'écoute de vos besoins ?</label><br>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="ecoute" value="oui" required>
-            <label class="form-check-label">Oui</label>
+          <input class="form-check-input" type="radio" name="ecoute" value="oui" required>
+          <label class="form-check-label">Oui</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="ecoute" value="non">
-            <label class="form-check-label">Non</label>
+          <input class="form-check-input" type="radio" name="ecoute" value="non">
+          <label class="form-check-label">Non</label>
         </div>
-    </div>
+      </div>
 
-    <div class="mb-3">
+      <div class="mb-3">
         <label class="form-label">Souhaitez-vous revenir dans cette pharmacie ?</label><br>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="revenir" value="oui" required>
-            <label class="form-check-label">Oui</label>
+          <input class="form-check-input" type="radio" name="revenir" value="oui" required>
+          <label class="form-check-label">Oui</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="revenir" value="non">
-            <label class="form-check-label">Non</label>
+          <input class="form-check-input" type="radio" name="revenir" value="non">
+          <label class="form-check-label">Non</label>
         </div>
-    </div>
+      </div>
 
-    <!-- Commentaire -->
-    <div class="mb-3">
+      <div class="mb-3">
         <label for="commentaire" class="form-label">Commentaire <span class="text-muted">(facultatif)</span></label>
         <textarea class="form-control" id="commentaire" name="commentaire" rows="3"></textarea>
-    </div>
+      </div>
 
-    <button type="submit" class="btn btn-primary">Envoyer</button>
-    <a href="{% url 'detail_pharmacien' pharmacien.pk %}" class="btn btn-secondary">Retour</a>
-</form>
+      <button type="submit" class="btn btn-primary">Envoyer</button>
+      <a href="{% url 'detail_pharmacien' pharmacien.pk %}" class="btn btn-secondary ms-2">Retour</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Validation simple du formulaire pour la note obligatoire
+  document.getElementById('noteForm').addEventListener('submit', function(e) {
+    const notes = document.getElementsByName('note');
+    let checked = false;
+    for (const note of notes) {
+      if (note.checked) {
+        checked = true;
+        break;
+      }
+    }
+    if (!checked) {
+      e.preventDefault();
+      document.getElementById('error-note').style.display = 'block';
+      // Scroll vers le message d'erreur
+      document.getElementById('error-note').scrollIntoView({behavior: 'smooth'});
+    } else {
+      document.getElementById('error-note').style.display = 'none';
+    }
+  });
+</script>
 {% endblock %}
