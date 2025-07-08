@@ -1,36 +1,32 @@
-{% extends 'pharmacie_app/base.html' %}
-{% block title %}Détail Pharmacien{% endblock %}
+{% extends 'base.html' %}
+
+{% block title %}{{ pharmacien.nom }}{% endblock %}
+
 {% block content %}
-<div class="card mb-4">
-    <div class="row g-0">
-        {% if pharmacien.image %}
-        <div class="col-md-4">
-            <img src="{{ pharmacien.image.url }}" class="img-fluid rounded-start" alt="Photo de {{ pharmacien.nom }}">
-        </div>
-        {% endif %}
-        <div class="col-md-8">
-            <div class="card-body">
-                <h3 class="card-title">{{ pharmacien.nom }}</h3>
-                <p class="card-text">Adresse : {{ pharmacien.adresse }}</p>
-                <p class="card-text">Téléphone : {{ pharmacien.telephone }}</p>
-                <p class="card-text">Email : {{ pharmacien.email }}</p>
-                <p class="card-text">Description : {{ pharmacien.description }}</p>
-                <p class="card-text"><strong>Note moyenne :</strong> {{ pharmacien.moyenne_notes|default:'Non noté' }}/5</p>
-                <a href="{% url 'noter_pharmacien' pharmacien.pk %}" class="btn btn-success">Noter / Commenter</a>
-            </div>
-        </div>
-    </div>
-</div>
-<h4>Avis des visiteurs</h4>
-{% if avis %}
-    {% for a in avis %}
-        <div class="alert alert-secondary mb-2">
-            <strong>{{ a.auteur }}</strong> ({{ a.date_ajout|date:'d/m/Y H:i' }})<br>
-            <span class="badge bg-warning text-dark">Note : {{ a.note }}/5</span><br>
-            {{ a.commentaire }}
-        </div>
+  <div class="card">
+    <h2>{{ pharmacien.nom }}</h2>
+    <p>{{ pharmacien.adresse }}</p>
+    <p>Note moyenne : ⭐ {{ pharmacien.moyenne_note|default:"Pas encore noté" }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Donner une note</h3>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Envoyer</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Avis</h3>
+    {% for avis in avis_list %}
+      <div style="margin-bottom: 1rem;">
+        <strong>⭐ {{ avis.note }}</strong><br>
+        <span style="color: #555;">{{ avis.commentaire }}</span>
+      </div>
+    {% empty %}
+      <p>Aucun avis pour ce pharmacien.</p>
     {% endfor %}
-{% else %}
-    <p>Aucun avis pour ce pharmacien.</p>
-{% endif %}
+  </div>
 {% endblock %}
