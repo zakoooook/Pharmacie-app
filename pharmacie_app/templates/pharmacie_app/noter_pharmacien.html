@@ -1,76 +1,195 @@
-
 {% extends 'pharmacie_app/base.html' %}
 {% block title %}Noter le Pharmacien{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Container flex : image à gauche, form à droite */
+  form.mb-4 {
+    display: flex;
+    gap: 2rem;
+    max-width: 900px;
+    margin: 2rem auto;
+    align-items: flex-start;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  /* Image pharmacien à gauche */
+  img.rounded.shadow.mb-4 {
+    width: 220px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    flex-shrink: 0;
+  }
+
+  /* Formulaire à droite */
+  .form-content {
+    flex: 1;
+  }
+
+  /* Étoiles en flex row-reverse pour remplissage en cascade */
+  #star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+  /* On cache les radios */
+  #star-rating input[type="radio"] {
+    display: none;
+  }
+  /* Labels avec SVG étoile vide */
+  #star-rating label {
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+  }
+  #star-rating label svg {
+    width: 100%;
+    height: 100%;
+    fill: #ddd; /* couleur étoile vide */
+    transition: fill 0.3s ease;
+  }
+  /* Au survol, remplir l'étoile et toutes les précédentes */
+  #star-rating label:hover svg,
+  #star-rating label:hover ~ label svg {
+    fill: #ffc107; /* jaune or */
+  }
+  /* Étoile sélectionnée et toutes précédentes en jaune */
+  #star-rating input[type="radio"]:checked ~ label svg,
+  #star-rating input[type="radio"]:checked + label svg {
+    fill: #ffc107;
+  }
+  /* Attention: pour remplir toutes les précédentes, on utilise du JS */
+
+  /* Message d'erreur */
+  .error-message {
+    color: #d32f2f;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+    display: none;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <h2>Noter {{ pharmacien.nom }}</h2>
-<form method="post" class="mb-4">
+<form method="post" class="mb-4" id="noteForm" novalidate>
     <!-- PHOTO DU PHARMACIEN -->
-<img src="{{ pharmacien.image.url }}" alt="Photo de {{ pharmacien.nom }}"
-     class="rounded shadow mb-4" style="width: 220px; height: auto; object-fit: cover;">
-    {% csrf_token %}
-    
-    <div class="mb-3">
-        <label for="auteur" class="form-label">Votre nom (facultatif)</label>
-        <input type="text" class="form-control" id="auteur" name="auteur">
-    </div>
+    <img src="{{ pharmacien.image.url }}" alt="Photo de {{ pharmacien.nom }}"
+         class="rounded shadow mb-4">
 
-    <!-- Étoiles de notation -->
-    <div class="mb-3">
-        <label class="form-label">Note</label>
-        <div id="star-rating" class="mb-2">
-            {% for i in "12345" %}
-                <input type="radio" class="btn-check" name="note" id="star{{ i }}" value="{{ i }}" autocomplete="off" required>
-                <label class="btn btn-outline-warning" for="star{{ i }}">
-                    &#9733;
-                </label>
-            {% endfor %}
+    <div class="form-content">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="auteur" class="form-label">Votre nom (facultatif)</label>
+            <input type="text" class="form-control" id="auteur" name="auteur" autocomplete="off">
         </div>
-    </div>
 
-    <!-- Questions personnalisées -->
-    <div class="mb-3">
-        <label class="form-label">Le service fourni vous a-t-il satisfait ?</label><br>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="service_satisfait" value="oui" required>
-            <label class="form-check-label">Oui</label>
+        <!-- Étoiles de notation -->
+        <div class="mb-3">
+            <label class="form-label">Note <span style="color: #d32f2f;">*</span></label>
+            <div id="star-rating" aria-label="Notation par étoiles" role="radiogroup">
+                {% for i in "54321" %}
+                    <input type="radio" class="btn-check" name="note" id="star{{ i }}" value="{{ i }}" autocomplete="off">
+                    <label for="star{{ i }}" role="radio" tabindex="0" aria-checked="false" aria-label="{{ i }} étoiles">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                        </svg>
+                    </label>
+                {% endfor %}
+            </div>
+            <div class="error-message" id="error-note">Veuillez noter le nombre d’étoiles.</div>
         </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="service_satisfait" value="non">
-            <label class="form-check-label">Non</label>
-        </div>
-    </div>
 
-    <div class="mb-3">
-        <label class="form-label">Le pharmacien était-il à l'écoute de vos besoins ?</label><br>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="ecoute" value="oui" required>
-            <label class="form-check-label">Oui</label>
+        <!-- Questions personnalisées -->
+        <div class="mb-3">
+            <label class="form-label">Le service fourni vous a-t-il satisfait ?</label><br>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="service_satisfait" value="oui" required id="service_oui">
+                <label class="form-check-label" for="service_oui">Oui</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="service_satisfait" value="non" id="service_non">
+                <label class="form-check-label" for="service_non">Non</label>
+            </div>
         </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="ecoute" value="non">
-            <label class="form-check-label">Non</label>
-        </div>
-    </div>
 
-    <div class="mb-3">
-        <label class="form-label">Souhaitez-vous revenir dans cette pharmacie ?</label><br>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="revenir" value="oui" required>
-            <label class="form-check-label">Oui</label>
+        <div class="mb-3">
+            <label class="form-label">Le pharmacien était-il à l'écoute de vos besoins ?</label><br>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="ecoute" value="oui" required id="ecoute_oui">
+                <label class="form-check-label" for="ecoute_oui">Oui</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="ecoute" value="non" id="ecoute_non">
+                <label class="form-check-label" for="ecoute_non">Non</label>
+            </div>
         </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="revenir" value="non">
-            <label class="form-check-label">Non</label>
+
+        <div class="mb-3">
+            <label class="form-label">Souhaitez-vous revenir dans cette pharmacie ?</label><br>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="revenir" value="oui" required id="revenir_oui">
+                <label class="form-check-label" for="revenir_oui">Oui</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="revenir" value="non" id="revenir_non">
+                <label class="form-check-label" for="revenir_non">Non</label>
+            </div>
         </div>
-    </div>
 
-    <!-- Commentaire -->
-    <div class="mb-3">
-        <label for="commentaire" class="form-label">Commentaire <span class="text-muted">(facultatif)</span></label>
-        <textarea class="form-control" id="commentaire" name="commentaire" rows="3"></textarea>
-    </div>
+        <!-- Commentaire -->
+        <div class="mb-3">
+            <label for="commentaire" class="form-label">Commentaire <span class="text-muted">(facultatif)</span></label>
+            <textarea class="form-control" id="commentaire" name="commentaire" rows="3"></textarea>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Envoyer</button>
-    <a href="{% url 'detail_pharmacien' pharmacien.pk %}" class="btn btn-secondary">Retour</a>
+        <button type="submit" class="btn btn-primary">Envoyer</button>
+        <a href="{% url 'detail_pharmacien' pharmacien.pk %}" class="btn btn-secondary ms-2">Retour</a>
+    </div>
 </form>
+
+<script>
+  // JS pour remplir les étoiles précédentes quand on sélectionne une étoile
+  const stars = document.querySelectorAll('#star-rating label');
+  const radios = document.querySelectorAll('#star-rating input[type="radio"]');
+
+  function updateAria() {
+    radios.forEach((radio, i) => {
+      const label = stars[i];
+      label.setAttribute('aria-checked', radio.checked);
+    });
+  }
+
+  stars.forEach((star, idx) => {
+    star.addEventListener('click', () => {
+      radios.forEach((r, i) => {
+        r.checked = i === idx;
+      });
+      updateAria();
+    });
+    star.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        star.click();
+      }
+    });
+  });
+
+  // Validation formulaire : vérifier que note est sélectionnée
+  document.getElementById('noteForm').addEventListener('submit', function(e) {
+    const checked = Array.from(radios).some(radio => radio.checked);
+    if (!checked) {
+      e.preventDefault();
+      document.getElementById('error-note').style.display = 'block';
+      document.getElementById('error-note').scrollIntoView({behavior: 'smooth'});
+    } else {
+      document.getElementById('error-note').style.display = 'none';
+    }
+  });
+</script>
 {% endblock %}
